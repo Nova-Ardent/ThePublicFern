@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Discord;
 using System.IO;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Linq;
 
 namespace Asparagus_Fern.Features
@@ -25,6 +26,7 @@ namespace Asparagus_Fern.Features
             public ulong startingPoints { get; set; }
             public ulong pointsPerHour { get; set; }
             public ulong pointsPerMessage { get; set; }
+            public string reward { get; set; }
             public List<NitroContestPlayer> players { get; set; } = new List<NitroContestPlayer>();
 
             public NitroContestServer() { }
@@ -67,6 +69,8 @@ namespace Asparagus_Fern.Features
         private ulong cacheMessageID;
         private bool messageCacheAdmin;
 
+        static readonly Regex trimmer = new Regex(@"\s\s+", RegexOptions.Compiled);
+
         public NitroContest(DiscordSocketClient client)
         {
             this.client = client;
@@ -88,6 +92,7 @@ namespace Asparagus_Fern.Features
         private async Task Message(SocketMessage message)
         {
             if (message.Author.IsBot) return;
+            string content = trimmer.Replace(message.Content.ToLower(), " ");
 
             var guildID = (message.Channel as SocketGuildChannel).Guild.Id;
             if (nitroContestServers.servers.Any(x => x.ID == guildID))
@@ -100,16 +105,16 @@ namespace Asparagus_Fern.Features
                     player.stockedPoints += server.pointsPerMessage;
                 }
 
-                if (message.Content.StartsWith("NitroContest help"))
+                if (content.StartsWith("nitrocontest help"))
                 {
                     await message.Channel.SendMessageAsync(embed: GetHelp(server));
                 }
 
                 if (player != null)
                 {
-                    if (message.Content.StartsWith("NitroContest vote"))
+                    if (content.StartsWith("nitrovontest vote"))
                     {
-                        string[] voting = message.Content.Split(' ');
+                        string[] voting = content.Split(' ');
                         if (voting.Length != 4)
                         {
                             await message.Channel.SendMessageAsync(embed: GetVoteHelp());
@@ -164,7 +169,7 @@ namespace Asparagus_Fern.Features
                             }
                         }
                     }
-                    if (message.Content.StartsWith("NitroContest points"))
+                    if (content.StartsWith("nitrocontest points"))
                     {
                         var embed = new EmbedBuilder()
                         {
@@ -177,7 +182,7 @@ namespace Asparagus_Fern.Features
                 }
                 else
                 {
-                    if (message.Content.StartsWith("NitroContest join"))
+                    if (content.StartsWith("nitrocontest join"))
                     {
                         if (!server.players.Any(x => x.uuid == message.Author.Id))
                         {
@@ -190,9 +195,21 @@ namespace Asparagus_Fern.Features
                     }
                 }
 
-                if (message.Content.StartsWith("NitroContest leaderboard") && server.players.Count() > 0)
+                if (content.StartsWith("nitrocontest leaderboard") && server.players.Count() > 0)
                 {
-                    var leaders = server.players.OrderBy(x => x.actualPoints).Take(10);
+                    string[] split = content.Split(' ');
+                    int skipAmount = 0;
+                    if (content.StartsWith("nitrocontest leaderboard skip") && split.Length == 4 && int.TryParse(split[3], out skipAmount))
+                    {
+                        if (server.players.Count <= skipAmount)
+                        {
+                            skipAmount = 0;
+                            await message.Channel.SendMessageAsync("that would skip everyone");
+                            return; 
+                        }
+                    }
+
+                    var leaders = server.players.OrderBy(x => x.actualPoints).Skip(skipAmount).Take(10);
                     var leader = leaders.First();
                     var leaderboardProfilePic = (message.Channel as SocketGuildChannel).Guild.GetUser(leader.ID).GetAvatarUrl();
 
@@ -203,7 +220,7 @@ namespace Asparagus_Fern.Features
                         footer.Text = $"You are currently sitting at {player.actualPoints} points, and have {player.stockedPoints} to use.";
                     }
 
-                    int place = 0;
+                    int place = skipAmount;
                     var leaderFields = leaders.Select(x =>
                     {
                         place++;
@@ -212,7 +229,7 @@ namespace Asparagus_Fern.Features
                         if (place == 1) placeStr = $"{place}st  :";
                         else if (place == 2) placeStr = $"{place}nd  :";
                         else if (place == 3) placeStr = $"{place}rd  :";
-                        else if (place < 10) placeStr = $"{place}th  :";
+                        else if (place < 10) placeStr = $"{place}    :";
                         else placeStr = $"{place}th :";
                         return new EmbedFieldBuilder() { 
                             Name = $"**`place: {placeStr}`\t\t{x.name}#{x.Discrim}**",
@@ -239,7 +256,7 @@ namespace Asparagus_Fern.Features
 
             if (MessageIsFromAdmin(message))
             {
-                if (message.Content.StartsWith("NitroContest server"))
+                if (content.StartsWith("nitrocontest server"))
                 {
                     if (nitroContestServers.servers.Any(x => x.ID == guildID))
                     {
@@ -250,7 +267,7 @@ namespace Asparagus_Fern.Features
                     await message.Channel.SendMessageAsync("Server was set to a nitro contest server! <a:partyblob:751420504640061481>");
                     SaveAndLoad.SaveFile(nitroContestServers, Directory.GetCurrentDirectory(), nitroContestFile);
                 }
-                else if (message.Content.StartsWith("NitroContest remove server"))
+                else if (content.StartsWith("nitrocontest remove server"))
                 {
                     if (!nitroContestServers.servers.Any(x => x.ID == guildID))
                     {
@@ -261,10 +278,10 @@ namespace Asparagus_Fern.Features
                     await message.Channel.SendMessageAsync("removing discord server from Nitro contests.");
                     SaveAndLoad.SaveFile(nitroContestServers, Directory.GetCurrentDirectory(), nitroContestFile);
                 }
-                else if (message.Content.StartsWith("NitroContest set pph") || message.Content.StartsWith("NitroContest set ppm"))
+                else if (content.StartsWith("nitrocontest set pph") || content.StartsWith("nitrocontest set ppm"))
                 {
-                    bool isPph = message.Content.StartsWith("NitroContest set pph");
-                    string[] pph = message.Content.Split(' ');
+                    bool isPph = content.StartsWith("nitrocontest set pph");
+                    string[] pph = content.Split(' ');
                     if (pph.Length == 4)
                     {
                         ulong n;
@@ -295,6 +312,17 @@ namespace Asparagus_Fern.Features
                         await message.Channel.SendMessageAsync("try including a number, and nothing else");
                     }
                 }
+                else if (content.StartsWith("nitrocontest set reward"))
+                {
+                    int trimLength = "nitrocontest set reward ".Length;
+                    if (content.Length > trimLength)
+                    {
+                        var server = nitroContestServers.servers.Find(x => x.ID == guildID);
+                        server.reward = content.Substring(trimLength);
+                        await message.Channel.SendMessageAsync($"The reward for nitro contest is now {server.reward}");
+                        SaveAndLoad.SaveFile(nitroContestServers, Directory.GetCurrentDirectory(), nitroContestFile);
+                    }
+                }
             }
         }
 
@@ -313,7 +341,7 @@ namespace Asparagus_Fern.Features
         Embed GetHelp(NitroContestServer server)
         {
             return new EmbedBuilder() { Title = "Nitro contest!", Description = "**What is it?**\n"
-                + "Nitro Contest is a chance to win a 1 month draw for discord nitro. The winner of the contest is whoever is at the top of the leaderboard at the end of the month.\n\n"
+                + $"Nitro Contest is a chance to win {server.reward}. The winner of the contest is whoever is at the top of the leaderboard at the end of the month.\n\n"
                 + "**How do I play?**\n"
                 + $"To join the contest you can start by using the following command\n\nNitroContest join\n\nAfter joined, every message will earn you {server.pointsPerMessage} stored pts, and once an hour you will get {server.pointsPerHour} stored pts. "
                 + "With the stored points, you can vote for other users on the leaderboard. Voting for a user, will give you half the leaderboard points.\n\n"
@@ -325,9 +353,9 @@ namespace Asparagus_Fern.Features
                 + "NitroContest points\n\n\n"
                 + "**What are the rules?**\n"
                 + "1) no alternate accounts\n"
-                + "2) no teaming up with players\n"
-                + "3) no using exploits to get points\n"
-                + "Rules are subject to change."
+                + "2) no using exploits to get points\n"
+                + "3) no self botting or spamming, to farm points"
+                + "\nRules are subject to change."
             }.Build();
         }
 

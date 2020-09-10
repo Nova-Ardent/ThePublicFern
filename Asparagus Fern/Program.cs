@@ -21,6 +21,7 @@ namespace Asparagus_Fern
         GuessThatRank guessThatRank;
         PartyUp partyUp;
         NitroContest nitroContest;
+        HeyFern heyFern;
 
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
@@ -34,7 +35,7 @@ namespace Asparagus_Fern
             guessThatRank = new GuessThatRank(_client);
             partyUp = new PartyUp(_client);
             nitroContest = new NitroContest(_client);
-
+            heyFern = new HeyFern(_client);
             using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
             {
                 StreamReader sr = new StreamReader(fs);
