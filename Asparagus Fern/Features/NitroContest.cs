@@ -209,7 +209,7 @@ namespace Asparagus_Fern.Features
                         }
                     }
 
-                    var leaders = server.players.OrderBy(x => x.actualPoints).Skip(skipAmount).Take(10);
+                    var leaders = server.players.OrderByDescending(x => x.actualPoints).Skip(skipAmount).Take(10);
                     var leader = leaders.First();
                     var leaderboardProfilePic = (message.Channel as SocketGuildChannel).Guild.GetUser(leader.ID).GetAvatarUrl();
 
