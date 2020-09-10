@@ -229,8 +229,7 @@ namespace Asparagus_Fern.Features
                         if (place == 1) placeStr = $"{place}st  :";
                         else if (place == 2) placeStr = $"{place}nd  :";
                         else if (place == 3) placeStr = $"{place}rd  :";
-                        else if (place < 10) placeStr = $"{place}    :";
-                        else placeStr = $"{place}th :";
+                        else placeStr = $"{place}   :";
                         return new EmbedFieldBuilder() { 
                             Name = $"**`place: {placeStr}`\t\t{x.name}#{x.Discrim}**",
                             Value = $"{x.actualPoints}pts"
