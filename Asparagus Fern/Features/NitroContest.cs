@@ -75,6 +75,8 @@ namespace Asparagus_Fern.Features
         {
             this.client = client;
             client.MessageReceived += Message;
+            client.UserLeft += UserLeft;
+            client.GuildAvailable += ValidateUsers;
 
             if (SaveAndLoad.FileExists(Directory.GetCurrentDirectory(), nitroContestFile))
             {
@@ -87,6 +89,31 @@ namespace Asparagus_Fern.Features
             }
 
             timer = new System.Threading.Timer(IntervalTask, null, 0, 1000 * 60 * 60);
+        }
+
+        public Task ValidateUsers(SocketGuild guild)
+        {
+            var changeMade = false;
+
+            if (nitroContestServers.servers.Any(x => x.ID == guild.Id))
+            {
+                var server = nitroContestServers.servers.First(x => x.ID == guild.Id);
+                server.players = server.players.Where(x => guild.GetUser(x.ID) != null).ToList();
+            }
+
+            if (changeMade)
+            {
+                SaveAndLoad.SaveFile(nitroContestServers, Directory.GetCurrentDirectory(), nitroContestFile);
+            }
+            return Task.CompletedTask;
+        }
+
+        private Task UserLeft(SocketGuildUser user)
+        {
+            var server = nitroContestServers.servers.First(x => x.ID == user.Guild.Id);
+            server.players = server.players.Where(x => x.ID != user.Id).ToList();
+            SaveAndLoad.SaveFile(nitroContestServers, Directory.GetCurrentDirectory(), nitroContestFile);
+            return Task.CompletedTask;
         }
 
         private async Task Message(SocketMessage message)
@@ -112,7 +139,7 @@ namespace Asparagus_Fern.Features
 
                 if (player != null)
                 {
-                    if (content.StartsWith("nitrovontest vote"))
+                    if (content.StartsWith("nitrocontest vote"))
                     {
                         string[] voting = content.Split(' ');
                         if (voting.Length != 4)
@@ -247,10 +274,6 @@ namespace Asparagus_Fern.Features
                     }.Build();
 
                     await message.Channel.SendMessageAsync(embed: embed);
-                }
-                else if (server.players.Count() == 0)
-                {
-                    await message.Channel.SendMessageAsync("no one is playing :(");
                 }
             }
 

@@ -34,7 +34,9 @@ namespace Asparagus_Fern
 
             guessThatRank = new GuessThatRank(_client);
             partyUp = new PartyUp(_client);
+            
             nitroContest = new NitroContest(_client);
+
             heyFern = new HeyFern(_client);
             using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
             {
@@ -55,9 +57,9 @@ namespace Asparagus_Fern
 
         private Task Message(SocketMessage message)
         {
-            if (message.Content.StartsWith("who sucks fern?"))
+            if (message.Content.StartsWith("smoke bomb"))
             {
-                message.Channel.SendMessageAsync("Juicy penguin, why?");
+                message.Channel.SendMessageAsync("**Him and his supple abs disappeared without a trace.**");
             }
 
             Console.WriteLine(message.Content);
