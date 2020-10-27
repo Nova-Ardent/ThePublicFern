@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using Discord;
 using System.IO;
-using Asparagus_Fern.Features;
 using Asparagus_Fern.Features.RealmQuest;
 
 namespace Asparagus_Fern
