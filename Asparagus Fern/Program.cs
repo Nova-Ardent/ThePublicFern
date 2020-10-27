@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Discord;
 using System.IO;
 using Asparagus_Fern.Features;
+using Asparagus_Fern.Features.RealmQuest;
 
 namespace Asparagus_Fern
 {
@@ -18,10 +19,11 @@ namespace Asparagus_Fern
         private string token = null;
         private DiscordSocketClient _client;
 
-        GuessThatRank guessThatRank;
+        /*GuessThatRank guessThatRank;
         PartyUp partyUp;
         NitroContest nitroContest;
-        HeyFern heyFern;
+        HeyFern heyFern;*/
+        RealmQuest realmQuest;
 
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
@@ -32,12 +34,14 @@ namespace Asparagus_Fern
             _client.Log += Log;
             _client.MessageReceived += Message;
 
-            guessThatRank = new GuessThatRank(_client);
+            /*guessThatRank = new GuessThatRank(_client);
             partyUp = new PartyUp(_client);
             
             nitroContest = new NitroContest(_client);
 
-            heyFern = new HeyFern(_client);
+            heyFern = new HeyFern(_client);*/
+            realmQuest = new RealmQuest(_client);
+
             using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
             {
                 StreamReader sr = new StreamReader(fs);
@@ -57,11 +61,7 @@ namespace Asparagus_Fern
 
         private Task Message(SocketMessage message)
         {
-            if (message.Content.StartsWith("smoke bomb"))
-            {
-                message.Channel.SendMessageAsync("**Him and his supple abs disappeared without a trace.**");
-            }
-
+            Console.WriteLine(message.Author.GetAvatarUrl());
             Console.WriteLine(message.Content);
             return Task.CompletedTask;
         }
