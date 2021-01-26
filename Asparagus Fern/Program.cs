@@ -117,7 +117,11 @@ namespace Asparagus_Fern
         Task Message(SocketMessage message)
         {
             bool isAdmin = false;
-            if (message.Channel is SocketGuildChannel) isAdmin = (message.Channel as SocketGuildChannel).Guild.GetUser(message.Author.Id).GuildPermissions.Administrator;
+            if (message.Channel is SocketGuildChannel)
+            {
+                var user = (message.Channel as SocketGuildChannel).Guild.GetUser(message.Author.Id);
+                isAdmin = user != null && user.GuildPermissions.Administrator;
+            }
 
             string content = message.Content.ToLower();
 
@@ -131,7 +135,11 @@ namespace Asparagus_Fern
         async Task AsyncMessage(SocketMessage message)
         {
             bool isAdmin = false;
-            if (message.Channel is SocketGuildChannel) isAdmin = (message.Channel as SocketGuildChannel).Guild.GetUser(message.Author.Id).GuildPermissions.Administrator;
+            if (message.Channel is SocketGuildChannel)
+            {
+                var user = (message.Channel as SocketGuildChannel).Guild.GetUser(message.Author.Id);
+                isAdmin = user != null && user.GuildPermissions.Administrator;
+            }
 
             string content = message.Content.ToLower();
 
