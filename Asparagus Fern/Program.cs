@@ -116,6 +116,8 @@ namespace Asparagus_Fern
 
         Task Message(SocketMessage message)
         {
+            if (message.Author.IsBot) return Task.CompletedTask;
+
             bool isAdmin = false;
             if (message.Channel is SocketGuildChannel)
             {
@@ -134,6 +136,8 @@ namespace Asparagus_Fern
 
         async Task AsyncMessage(SocketMessage message)
         {
+            if (message.Author.IsBot) return;
+
             bool isAdmin = false;
             if (message.Channel is SocketGuildChannel)
             {
