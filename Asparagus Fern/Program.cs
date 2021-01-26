@@ -32,9 +32,9 @@ namespace Asparagus_Fern
 #if _WINDOWS
         private const string TOKEN_PATH = "C:\\Token\\AsFern.txt";
 #else
-        private const string TOKEN_PATH = "/Users/bleh/Documents/AsFern.txt";
+        private const string TOKEN_PATH = "/Users/jordanszwed/Documents/AsFern.txt";
 #endif
-        
+
         private string token = null;
         private DiscordSocketClient _client;
         private DiscordSocketRestClient _restClient;
