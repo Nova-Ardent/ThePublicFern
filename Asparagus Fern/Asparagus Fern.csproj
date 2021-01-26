@@ -8,6 +8,17 @@
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <DefineConstants>_WINDOWS</DefineConstants>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Features\NewFolder1\**" />
+    <Compile Remove="Features\NewFolder\**" />
+    <Compile Remove="NewFolder\**" />
+    <EmbeddedResource Remove="Features\NewFolder1\**" />
+    <EmbeddedResource Remove="Features\NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="Features\NewFolder1\**" />
+    <None Remove="Features\NewFolder\**" />
+    <None Remove="NewFolder\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />

@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Discord.WebSocket;
-using Discord;
-using System.IO;
-using System.Text.Json;
-using System.Linq;
+using Asparagus_Fern.Tools;
 
-namespace Asparagus_Fern.Features
+
+namespace Asparagus_Fern.Features.MinorApplications
 {
-    class HeyFern
+    class Woosh : DiscordIO
     {
-        private string[] responseInit = new string[] { 
+        private string[] responseInit = new string[] {
             "uhhh...",
             "",
             "wooooosh",
@@ -41,15 +37,14 @@ namespace Asparagus_Fern.Features
         };
 
         Random rand;
-        public HeyFern(DiscordSocketClient client)
+        public Woosh()
         {
             rand = new Random();
-            client.MessageReceived += Message;
         }
 
-        private async Task Message(SocketMessage message)
+        public override async Task AsyncMessage(SocketMessage message, string lowercase, bool isAdmin)
         {
-            if (message.Author.IsBot) return;
+            if (message.Author.IsBot) await base.AsyncMessage(message, lowercase, isAdmin);
 
             if (message.Content.ToLower().Contains("fern"))
             {
