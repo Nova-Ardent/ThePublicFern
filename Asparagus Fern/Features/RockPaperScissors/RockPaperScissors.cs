@@ -13,6 +13,7 @@ public partial class Responses
     public static string HelpRockPaperScissors = "help rock paper scissors";
     public static string QueueRockPaperScissor = "queue rock paper scissors";
     public static string QueueRockPaperScissorShort1 = "qrps";
+    public static string QueueRockPaperScissorShort2 = "q rps";
     public static string GetStatsRockPaperScissors = "stats rock paper scissors";
 }
 
@@ -80,6 +81,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
             if (lowercase.Equals(Responses.HelpRockPaperScissors)) Help(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissor)) Queue(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissorShort1)) Queue(message);
+            else if (lowercase.Equals(Responses.QueueRockPaperScissorShort2)) Queue(message);
             else if (lowercase.Equals(Responses.GetStatsRockPaperScissors)) GetStats(message);
             return base.Message(message, lowercase, isAdmin);
         }
