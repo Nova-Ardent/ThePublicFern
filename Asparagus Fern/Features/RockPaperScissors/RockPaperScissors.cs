@@ -11,9 +11,17 @@ using System.Linq;
 public partial class Responses
 {
     public static string HelpRockPaperScissors = "help rock paper scissors";
+    public static string HelpRockPaperScissorShort1 = "hrps";
+    public static string HelpRockPaperScissorShort2 = "h rps";
     public static string QueueRockPaperScissor = "queue rock paper scissors";
     public static string QueueRockPaperScissorShort1 = "qrps";
+    public static string QueueRockPaperScissorShort2 = "q rps";
     public static string GetStatsRockPaperScissors = "stats rock paper scissors";
+    public static string GetStatsRockPaperScissorsShort1 = "srps";
+    public static string GetStatsRockPaperScissorsShort2 = "s rps";
+    public static string LeaderboardRockPaperScissors = "leaderboard rock paper scissors";
+    public static string LeaderboardRockPaperScissorsShort1 = "lrps";
+    public static string LeaderboardRockPaperScissorsShort2 = "l rps";
 }
 
 namespace Asparagus_Fern.Features.RockPaperScissors
@@ -78,9 +86,14 @@ namespace Asparagus_Fern.Features.RockPaperScissors
         public override Task Message(SocketMessage message, string lowercase, bool isAdmin)
         {
             if (lowercase.Equals(Responses.HelpRockPaperScissors)) Help(message);
+            if (lowercase.Equals(Responses.HelpRockPaperScissorShort1)) Help(message);
+            if (lowercase.Equals(Responses.HelpRockPaperScissorShort2)) Help(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissor)) Queue(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissorShort1)) Queue(message);
+            else if (lowercase.Equals(Responses.QueueRockPaperScissorShort2)) Queue(message);
             else if (lowercase.Equals(Responses.GetStatsRockPaperScissors)) GetStats(message);
+            else if (lowercase.Equals(Responses.GetStatsRockPaperScissorsShort1)) GetStats(message);
+            else if (lowercase.Equals(Responses.GetStatsRockPaperScissorsShort2)) GetStats(message);
             return base.Message(message, lowercase, isAdmin);
         }
 

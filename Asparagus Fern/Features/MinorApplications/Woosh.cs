@@ -51,7 +51,7 @@ namespace Asparagus_Fern.Features.MinorApplications
                 int init = rand.Next(responseInit.Length);
                 int mid = rand.Next(responseMid.Length);
                 int end = rand.Next(responseEnd.Length);
-                await message.Channel.SendMessageAsync($"{responseInit[init]}{responseMid[init]}{responseEnd[init]}");
+                await message.Channel.SendMessageAsync($"{responseInit[init]}{responseMid[mid]}{responseEnd[end]}");
             }
         }
     }
