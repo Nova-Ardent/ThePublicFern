@@ -109,9 +109,6 @@ namespace Asparagus_Fern.Features.RockPaperScissors
                 game.user1 = users[0];
                 game.user2 = users[1];
 
-                game.user1.queued = false;
-                game.user2.queued = false;
-
                 var embed = new EmbedBuilder()
                 {
                     Title = "Rock Paper Scissors",
