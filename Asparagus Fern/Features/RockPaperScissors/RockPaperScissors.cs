@@ -92,7 +92,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
             else if (queue.Count % 2 == 1)
             {
                 usersToMakeActive = queue.Take(queue.Count - 1).OrderBy(x => x.MMR).ToList();
-                queue = queue.Skip(queue.Count - 1).ToList();
+                queue = queue.Skip(queue.Count - 1).Take(1).ToList();
             }
             else
             {
