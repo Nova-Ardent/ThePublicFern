@@ -68,7 +68,7 @@ namespace Asparagus_Fern
             a5Timer.Elapsed += new ElapsedEventHandler(TimedFunctionFiveMinutes);
             a5Timer.Start();
 
-            var a1Timer = new System.Timers.Timer(60 * 1000);
+            var a1Timer = new System.Timers.Timer(30 * 1000);
             a1Timer.Elapsed += new ElapsedEventHandler(TimedFunctionOneMinutes);
             a1Timer.Start();
 
@@ -110,12 +110,13 @@ namespace Asparagus_Fern
 
         Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
             return Task.CompletedTask;
         }
 
         Task Message(SocketMessage message)
         {
+            Console.WriteLine(message.Author.GetAvatarUrl());
+
             if (message.Author.IsBot) return Task.CompletedTask;
 
             bool isAdmin = false;
