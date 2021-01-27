@@ -127,7 +127,8 @@ namespace Asparagus_Fern.Features.RockPaperScissors
                 var embed = new EmbedBuilder()
                 {
                     Title = "Rock Paper Scissors",
-                    Description = $"Your match up is\n**{game.user1.MMR}-MMR {game.user1.username}\n{game.user2.MMR}-MMR {game.user2.username}**",
+                    Description = $"Your match up is\n**{game.user1.MMR}-MMR {game.user1.username}\n{game.user2.MMR}-MMR {game.user2.username}**\n\n"
+                        + "it is possible that your reaction may not go through, if you feel it didn't, re-react.",
                     Color = color
                 }.Build();
 
@@ -146,6 +147,8 @@ namespace Asparagus_Fern.Features.RockPaperScissors
 
                 activeGames[game.messageID1] = game;
                 activeGames[game.messageID2] = game;
+
+                Console.WriteLine($"{game.user1.username} vs {game.user2.username}");
             }
         }
 
@@ -242,16 +245,40 @@ namespace Asparagus_Fern.Features.RockPaperScissors
                 
                 if (game.messageID1 == cachedMessage.Id)
                 {
-                    if (reaction.Emote.Name.Equals(EmojiList.rock)) game.user1reaction = 0;
-                    if (reaction.Emote.Name.Equals(EmojiList.scroll)) game.user1reaction = 1;
-                    if (reaction.Emote.Name.Equals(EmojiList.scissors)) game.user1reaction = 2;
+                    if (reaction.Emote.Name.Equals(EmojiList.rock))
+                    {
+                        await game.user1.cachedUser.SendMessageAsync($"You played rock");
+                        game.user1reaction = 0;
+                    }
+                    if (reaction.Emote.Name.Equals(EmojiList.scroll))
+                    {
+                        await game.user1.cachedUser.SendMessageAsync($"You played paper");
+                        game.user1reaction = 1;
+                    }
+                    if (reaction.Emote.Name.Equals(EmojiList.scissors))
+                    {
+                        await game.user1.cachedUser.SendMessageAsync($"You played scissors");
+                        game.user1reaction = 2;
+                    }
                 }
                 
                 if (game.messageID2 == cachedMessage.Id)
                 {
-                    if (reaction.Emote.Name.Equals(EmojiList.rock)) game.user2reaction = 0;
-                    if (reaction.Emote.Name.Equals(EmojiList.scroll)) game.user2reaction = 1;
-                    if (reaction.Emote.Name.Equals(EmojiList.scissors)) game.user2reaction = 2;
+                    if (reaction.Emote.Name.Equals(EmojiList.rock))
+                    {
+                        await game.user2.cachedUser.SendMessageAsync($"You played rock");
+                        game.user2reaction = 0;
+                    }
+                    if (reaction.Emote.Name.Equals(EmojiList.scroll))
+                    {
+                        await game.user2.cachedUser.SendMessageAsync($"You played paper");
+                        game.user2reaction = 1;
+                    }
+                    if (reaction.Emote.Name.Equals(EmojiList.scissors))
+                    {
+                        await game.user2.cachedUser.SendMessageAsync($"You played scissors");
+                        game.user2reaction = 2;
+                    }
                 }
 
                 if (game.user1reaction != -1 && game.user2reaction != -1)

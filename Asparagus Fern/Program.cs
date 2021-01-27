@@ -115,8 +115,6 @@ namespace Asparagus_Fern
 
         Task Message(SocketMessage message)
         {
-            Console.WriteLine(message.Author.GetAvatarUrl());
-
             if (message.Author.IsBot) return Task.CompletedTask;
 
             bool isAdmin = false;
