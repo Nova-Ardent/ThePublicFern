@@ -55,6 +55,8 @@ namespace Asparagus_Fern.Features.RockPaperScissors
 
         public static Color color = Color.LightOrange;
 
+        bool leaderboardUpdate = true;
+        List<User> leaderboard;
         Dictionary<string, User> users = new Dictionary<string, User>();
         List<User> queue = new List<User>();
         Dictionary<ulong, Game> activeGames = new Dictionary<ulong, Game>();
@@ -86,14 +88,17 @@ namespace Asparagus_Fern.Features.RockPaperScissors
         public override Task Message(SocketMessage message, string lowercase, bool isAdmin)
         {
             if (lowercase.Equals(Responses.HelpRockPaperScissors)) Help(message);
-            if (lowercase.Equals(Responses.HelpRockPaperScissorShort1)) Help(message);
-            if (lowercase.Equals(Responses.HelpRockPaperScissorShort2)) Help(message);
+            else if (lowercase.Equals(Responses.HelpRockPaperScissorShort1)) Help(message);
+            else if (lowercase.Equals(Responses.HelpRockPaperScissorShort2)) Help(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissor)) Queue(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissorShort1)) Queue(message);
             else if (lowercase.Equals(Responses.QueueRockPaperScissorShort2)) Queue(message);
             else if (lowercase.Equals(Responses.GetStatsRockPaperScissors)) GetStats(message);
             else if (lowercase.Equals(Responses.GetStatsRockPaperScissorsShort1)) GetStats(message);
             else if (lowercase.Equals(Responses.GetStatsRockPaperScissorsShort2)) GetStats(message);
+            else if (lowercase.StartsWith(Responses.LeaderboardRockPaperScissors)) GetLeaderboard(message, lowercase);
+            else if (lowercase.StartsWith(Responses.LeaderboardRockPaperScissorsShort1)) GetLeaderboard(message, lowercase);
+            else if (lowercase.StartsWith(Responses.LeaderboardRockPaperScissorsShort2)) GetLeaderboard(message, lowercase);
             return base.Message(message, lowercase, isAdmin);
         }
 
@@ -237,6 +242,60 @@ namespace Asparagus_Fern.Features.RockPaperScissors
             message.Author.SendMessageAsync(embed: embed);
         }
 
+        public void GetLeaderboard(SocketMessage message, string lowercase)
+        {
+            if (leaderboardUpdate)
+            {
+                leaderboard = users
+                    .Select(x => x.Value)
+                    .OrderByDescending(x => x.MMR)
+                    .ThenByDescending(x => x.wins)
+                    .ToList();
+            }
+            leaderboardUpdate = false;
+
+            var firstInt = new string
+                (lowercase
+                .SkipWhile(x => !char.IsDigit(x))
+                .TakeWhile(x => char.IsDigit(x))
+                .ToArray()
+                );
+
+            string board = "";
+            char padding = ' ';
+            var digits = 0;
+            var parse = 0;
+            IEnumerable<User> values;
+            if (!String.IsNullOrEmpty(firstInt))
+            {
+                parse = int.Parse(firstInt) - 1;
+                digits = (int)Math.Floor(Math.Log10(parse + 10) + 1);
+                values = leaderboard.Skip(parse).Take(10);
+            }
+            else
+            {
+                parse = 0;
+                digits = (int)Math.Floor(Math.Log10(10) + 1);
+                values = leaderboard.Take(10);
+            }
+
+            if (values.Count() > 0)
+            {
+                board = values
+                    .Select(x => $"`{("#" + (++parse).ToString()).PadLeft(digits + 1, padding)}:`   **{x.username}#{x.discrim}**\n"
+                        + $"MMR: `{x.MMR.ToString("F2").PadLeft(10, padding)}`   Win: `{x.wins.ToString().PadLeft(6, padding)}`   Ties: `{x.draws.ToString().PadLeft(6, padding)}`   Losses: `{x.losses.ToString().PadLeft(6, padding)}`\n\n")
+                    .Aggregate((x, y) => x + y);
+
+                var embed = new EmbedBuilder()
+                {
+                    Title = "Rock paper scissors",
+                    Description = board,
+                    Color = color
+                }.Build();
+                message.Author.SendMessageAsync(embed: embed);
+            }
+        }
+
         public override async Task OnReaction(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (activeGames.ContainsKey(cachedMessage.Id) && reaction.User.IsSpecified && !reaction.User.Value.IsBot)
@@ -321,6 +380,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
 
                         game.user2.MMR = game.user2.MMR - mmr;
                         game.user2.losses++;
+                        leaderboardUpdate = true;
                     }
                     else if (win == 2)
                     {
@@ -338,6 +398,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
 
                         game.user1.MMR = game.user1.MMR - mmr;
                         game.user1.losses++;
+                        leaderboardUpdate = true;
                     }
 
                     game.user1.cachedUser = null;
@@ -362,7 +423,9 @@ namespace Asparagus_Fern.Features.RockPaperScissors
                 $"To play rock paper, you can join the queue using the command \n\n`{Responses.QueueRockPaperScissor}`\n\n"
                 + $"In the queue you'll be placed against a player of similar ELO. When a match is found, "
                 + $"you'll be given a message by the asparagus fern. To play react with rock paper or scissors, only the first "
-                + $"reaction will be taken. Both people in the match will be told who the winner is.\n\n",
+                + $"reaction will be taken. Both people in the match will be told who the winner is.\n\n"
+                + $"To get your current stats, use the command `{Responses.GetStatsRockPaperScissors}`\n\n"
+                + $"To get the leaderboard, use the command `{Responses.LeaderboardRockPaperScissors}`\n\n",
                 Color = color
             }.Build();
             message.Author.SendMessageAsync(embed: embed);
