@@ -292,7 +292,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
                     Description = board,
                     Color = color
                 }.Build();
-                message.Author.SendMessageAsync(embed: embed);
+                message.Channel.SendMessageAsync(embed: embed);
             }
         }
 
