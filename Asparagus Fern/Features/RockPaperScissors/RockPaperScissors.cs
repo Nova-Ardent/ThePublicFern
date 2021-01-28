@@ -283,7 +283,7 @@ namespace Asparagus_Fern.Features.RockPaperScissors
             {
                 board = values
                     .Select(x => $"`{("#" + (++parse).ToString()).PadLeft(digits + 1, padding)}:`   **{x.username}#{x.discrim}**\n"
-                        + $"MMR: `{x.MMR.ToString("F2").PadLeft(10, padding)}`   Win: `{x.wins.ToString().PadLeft(6, padding)}`   Ties: `{x.draws.ToString().PadLeft(6, padding)}`   Losses: `{x.losses.ToString().PadLeft(6, padding)}`\n\n")
+                        + $"MMR: `{x.MMR.ToString("F2").PadRight(10, padding)}`   Win: `{x.wins.ToString().PadRight(6, padding)}`   Ties: `{x.draws.ToString().PadRight(6, padding)}`   Losses: `{x.losses.ToString().PadRight(6, padding)}`\n\n")
                     .Aggregate((x, y) => x + y);
 
                 var embed = new EmbedBuilder()
