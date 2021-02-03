@@ -16,7 +16,6 @@ namespace Asparagus_Fern.Features.MinorApplications
         public override async Task AsyncMessage(SocketMessage message, string lowercase, bool isAdmin)
         {
             if (message.Author.IsBot) return;
-            Console.WriteLine(message.Content);
             if (message.Content.Contains("150"))
             {
                 await message.Channel.SendMessageAsync("<a:partyblob:751420504640061481> 150 percent intensifies <a:partyblob:751420504640061481>");

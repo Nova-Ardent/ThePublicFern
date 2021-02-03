@@ -46,7 +46,7 @@ namespace Asparagus_Fern.Features.MinorApplications
         {
             if (message.Author.IsBot) await base.AsyncMessage(message, lowercase, isAdmin);
 
-            if (message.Content.ToLower().Contains("fern"))
+            if (message.Content.ToLower().Equals("fern"))
             {
                 int init = rand.Next(responseInit.Length);
                 int mid = rand.Next(responseMid.Length);
