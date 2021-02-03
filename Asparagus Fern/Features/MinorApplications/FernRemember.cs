@@ -147,17 +147,19 @@ namespace Asparagus_Fern.Features.MinorApplications
                 return;
             }
 
-            string keys = "";
+            string keys = "```";
             foreach (var key in remembered[(message.Channel as SocketGuildChannel).Guild.Id.ToString()].Keys)
             {
                 keys += $"__{key}__  ";
                 if (keys.Length > 1000)
                 {
+                    keys += "```";
                     message.Channel.SendMessageAsync(keys);
                     keys = "";
                 }
             }
 
+            keys += "```";
             message.Channel.SendMessageAsync(keys);
         }
 
