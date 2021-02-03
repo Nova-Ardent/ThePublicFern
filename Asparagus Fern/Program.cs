@@ -16,7 +16,7 @@ using System.Timers;
 
 public partial class Responses
 {
-    public static string fernHelp = "fern help";
+    public static string FernHelp = "fern help";
 
     public static IEnumerable<string> GetAllResponses()
     {
@@ -48,7 +48,8 @@ namespace Asparagus_Fern
         List<Action<object, ElapsedEventArgs>> timed1MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed30secFunctionList = new List<Action<object, ElapsedEventArgs>>();
 
-        DiscordIO[] features = new DiscordIO[] { 
+        DiscordIO[] features = new DiscordIO[] {
+            new FernRemember(),
             new EightBall(),
             new GetTimeZones(),
             new MessageRecord(),
@@ -138,7 +139,7 @@ namespace Asparagus_Fern
 
             string content = message.Content.ToLower();
 
-            if (content.Equals(Responses.fernHelp))
+            if (content.Equals(Responses.FernHelp))
             {
                 string response = "";
                 foreach (var feature in features)
