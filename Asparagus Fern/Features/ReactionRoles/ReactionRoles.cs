@@ -43,7 +43,11 @@ namespace Asparagus_Fern.Features.ReactionRoles
 
         public override async Task AsyncMessage(SocketMessage message, string lowercase, bool isAdmin)
         {
-            if (!isAdmin) await base.Message(message, lowercase, isAdmin);
+            if (!isAdmin)
+            {
+                await base.Message(message, lowercase, isAdmin);
+                return;
+            }
 
             if (lowercase.StartsWith(Responses.reactionRolesAssign)) await Assign(message, lowercase);
             else if (lowercase.StartsWith(Responses.reactionRolesGenerate)) await Generate(message);
@@ -88,7 +92,7 @@ namespace Asparagus_Fern.Features.ReactionRoles
                 }
                 catch (Exception e)
                 {
-                    await message.Channel.SendMessageAsync("invalid emoji type");
+                    await message.Channel.SendMessageAsync($"invalid emoji type {e}");
                 }
                 SaveAndLoad.SaveFile(rolesForServers, Directory.GetCurrentDirectory(), reactionRolesPath);
             }
@@ -291,6 +295,11 @@ namespace Asparagus_Fern.Features.ReactionRoles
             }
 
             await base.OnRemoveReaction(cachedMessage, channel, reaction);
+        }
+
+        public override string HelpMessage(bool isAdmin)
+        {
+            return isAdmin ? $"`{Responses.reactionRolesHelp}` for more information about react roles" : "";
         }
     }
 }

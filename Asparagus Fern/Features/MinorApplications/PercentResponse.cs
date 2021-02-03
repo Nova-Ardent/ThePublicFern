@@ -22,7 +22,7 @@ namespace Asparagus_Fern.Features.MinorApplications
                 await message.Channel.SendMessageAsync("<a:partyblob:751420504640061481> 150 percent intensifies <a:partyblob:751420504640061481>");
             }
 
-            await base.Message(message, lowercase, isAdmin);
+            await base.AsyncMessage(message, lowercase, isAdmin);
         }
     }
 }

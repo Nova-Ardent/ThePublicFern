@@ -16,6 +16,8 @@ using System.Timers;
 
 public partial class Responses
 {
+    public static string fernHelp = "fern help";
+
     public static IEnumerable<string> GetAllResponses()
     {
         return typeof(Responses)
@@ -43,12 +45,16 @@ namespace Asparagus_Fern
         List<Func<SocketMessage, string, bool, Task>> messageAsyncRecievedList = new List<Func<SocketMessage, string, bool, Task>>();
         List<Action<object, ElapsedEventArgs>> timed5MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed1MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
+        List<Action<object, ElapsedEventArgs>> timed30secFunctionList = new List<Action<object, ElapsedEventArgs>>();
 
         DiscordIO[] features = new DiscordIO[] { 
-            new RockPaperScissors(),
             new EightBall(),
-            new ReactionRoles(),
+            new GetTimeZones(),
+            new MessageRecord(),
             new PercentResponse(),
+            new ReactionRoles(),
+            //new RemindMe(),
+            new RockPaperScissors(),
             new Woosh()
         };
 
@@ -72,6 +78,10 @@ namespace Asparagus_Fern
             a1Timer.Elapsed += new ElapsedEventHandler(TimedFunctionOneMinutes);
             a1Timer.Start();
 
+            var a30sTimer = new System.Timers.Timer(30 * 1000);
+            a30sTimer.Elapsed += new ElapsedEventHandler(TimedFunction30Seconds);
+            a30sTimer.Start();
+
             foreach (var feature in features)
             {
                 feature.client = _client;
@@ -80,6 +90,7 @@ namespace Asparagus_Fern
                 messageAsyncRecievedList.Add(feature.AsyncMessage);
                 timed5MinFunctionList.Add(feature.FiveMinuteTask);
                 timed1MinFunctionList.Add(feature.MinuteTask);
+                timed30secFunctionList.Add(feature.ThirtySecondTask);
                 _client.Connected += feature.Connected;
                 _client.Connected += feature.SetRest;
                 _client.LoggedOut += feature.Logout;
@@ -114,7 +125,7 @@ namespace Asparagus_Fern
         }
 
         Task Message(SocketMessage message)
-        {
+        {    
             if (message.Author.IsBot) return Task.CompletedTask;
 
             bool isAdmin = false;
@@ -125,6 +136,28 @@ namespace Asparagus_Fern
             }
 
             string content = message.Content.ToLower();
+
+            if (content.Equals(Responses.fernHelp))
+            {
+                string response = "";
+                foreach (var feature in features)
+                {
+                    string helpMessage = feature.HelpMessage(isAdmin);
+                    if (!string.IsNullOrEmpty(helpMessage))
+                    {
+                        response += $"{helpMessage}\n\n";
+                    }
+                }
+
+                response += "**tip: phrases such as `<this>` are referencing user input for the command**";
+                var embed = new EmbedBuilder()
+                {
+                    Title = $"Help!",
+                    Description = response,
+                    Color = Color.DarkRed
+                }.Build();
+                message.Channel.SendMessageAsync(embed: embed);
+            }
 
             foreach (var funcs in messageRecievedList)
             {
@@ -163,6 +196,14 @@ namespace Asparagus_Fern
         void TimedFunctionOneMinutes(object source, ElapsedEventArgs e)
         {
             foreach (var funcs in timed1MinFunctionList)
+            {
+                funcs(source, e);
+            }
+        }
+
+        void TimedFunction30Seconds(object source, ElapsedEventArgs e)
+        {
+            foreach (var funcs in timed30secFunctionList)
             {
                 funcs(source, e);
             }

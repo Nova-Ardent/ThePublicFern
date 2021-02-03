@@ -74,5 +74,10 @@ namespace Asparagus_Fern.Features.EightBall
             }.Build();
             message.Channel.SendMessageAsync(embed: embed);
         }
+
+        public override string HelpMessage(bool isAdmin)
+        {
+            return $"`{Responses.EightBallAsk1}<something you want to ask>` followed by a question to ask the 8 ball to poorly predict your future.";
+        }
     }
 }

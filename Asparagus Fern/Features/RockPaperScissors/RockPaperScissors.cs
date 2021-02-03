@@ -430,5 +430,10 @@ namespace Asparagus_Fern.Features.RockPaperScissors
             }.Build();
             message.Author.SendMessageAsync(embed: embed);
         }
+
+        public override string HelpMessage(bool isAdmin)
+        {
+            return $"`{Responses.HelpRockPaperScissors}` for rock paper scissors. short versions of the commands are the first letter of each word like `hrps`";
+        }
     }
 }
