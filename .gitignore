@@ -17,4 +17,10 @@
 /*.userprefs
 /*.pidb
 /*.booproj
-[Bb]in/
+*.json
+*.deps.json
+*.dll
+*.pdb
+*.runtimeconfig.dev.json
+*.runtimeconfig.json
+!timezones.json

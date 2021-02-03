@@ -36,6 +36,7 @@ namespace Asparagus_Fern
 #else
         private const string TOKEN_PATH = "/Users/jordanszwed/Documents/AsFern.txt";
 #endif
+        public static string DataPath = "Data";
 
         private string token = null;
         private DiscordSocketClient _client;

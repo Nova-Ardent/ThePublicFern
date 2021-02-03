@@ -24,12 +24,22 @@ namespace Asparagus_Fern.Features.MinorApplications
 {
     class GetTimeZones : DiscordIO
     {
+#if _WINDOWS
         TimeZoneInfo[] timeZones = TimeZoneInfo.GetSystemTimeZones()
                 .OrderBy(x => x.BaseUtcOffset)
                 .ToArray();
+#else
+
+#endif
+
         public GetTimeZones()
         {
-            
+#if _WINDOWS
+            string[] serializedTimezones = timeZones.Select(x => x.ToSerializedString()).ToArray();
+            SaveAndLoad.SaveFile(serializedTimezones, Program.DataPath, "timezones.json");
+#else
+
+#endif
         }
 
         public override async Task AsyncMessage(SocketMessage message, string lowercase, bool isAdmin)
