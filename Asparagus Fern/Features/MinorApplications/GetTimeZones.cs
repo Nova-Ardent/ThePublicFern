@@ -29,7 +29,7 @@ namespace Asparagus_Fern.Features.MinorApplications
                 .OrderBy(x => x.BaseUtcOffset)
                 .ToArray();
 #else
-
+        TimeZoneInfo[] timeZones;
 #endif
 
         public GetTimeZones()
@@ -38,7 +38,20 @@ namespace Asparagus_Fern.Features.MinorApplications
             string[] serializedTimezones = timeZones.Select(x => x.ToSerializedString()).ToArray();
             SaveAndLoad.SaveFile(serializedTimezones, Program.DataPath, "timezones.json");
 #else
+            string[] deserializedTimeZones;
+            SaveAndLoad.LoadFile(out deserializedTimeZones, Program.DataPath, "timezones.json");
 
+            if (deserializedTimeZones == null || deserializedTimeZones.Length == 0)
+            {
+                timeZones = new TimeZoneInfo[] { };
+                return;
+            }
+            else
+            {
+                timeZones = deserializedTimeZones
+                    .Select(x => TimeZoneInfo.FromSerializedString(x))
+                    .ToArray();
+            }
 #endif
         }
 
