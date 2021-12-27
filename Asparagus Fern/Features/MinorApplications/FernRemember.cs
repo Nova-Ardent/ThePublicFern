@@ -7,6 +7,8 @@ using Asparagus_Fern.Tools;
 using System.Collections.Generic;
 using System.Timers;
 using System.Linq;
+using System.Text.RegularExpressions;
+
 public partial class Responses
 {
     public static string FernRememberThat = "fern remember that";
@@ -21,6 +23,7 @@ namespace Asparagus_Fern.Features.MinorApplications
     class FernRemember : DiscordIO
     {
         Dictionary<string, Dictionary<string, string>> remembered = new Dictionary<string, Dictionary<string, string>>();
+        Regex rgx = new Regex("[^a-zA-Z0-9 -]");
 
         public FernRemember()
         {
@@ -38,6 +41,7 @@ namespace Asparagus_Fern.Features.MinorApplications
 
         public override Task Message(SocketMessage message, string lowercase, bool isAdmin)
         {
+            lowercase = rgx.Replace(lowercase, "");
             if ((message.Channel is SocketGuildChannel) && !remembered.ContainsKey((message.Channel as SocketGuildChannel).Guild.Id.ToString()))
             {
                 remembered[(message.Channel as SocketGuildChannel).Guild.Id.ToString()] = new Dictionary<string, string>();

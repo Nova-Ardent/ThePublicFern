@@ -42,6 +42,7 @@ namespace Asparagus_Fern
         private DiscordSocketClient _client;
         private DiscordSocketRestClient _restClient;
 
+        List<Func<SocketGuildUser, Task>> joinedList = new List<Func<SocketGuildUser, Task>>();
         List<Func<SocketMessage, string, bool, Task>> messageRecievedList = new List<Func<SocketMessage, string, bool, Task>>();
         List<Func<SocketMessage, string, bool, Task>> messageAsyncRecievedList = new List<Func<SocketMessage, string, bool, Task>>();
         List<Action<object, ElapsedEventArgs>> timed5MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
@@ -49,6 +50,7 @@ namespace Asparagus_Fern
         List<Action<object, ElapsedEventArgs>> timed30secFunctionList = new List<Action<object, ElapsedEventArgs>>();
 
         DiscordIO[] features = new DiscordIO[] {
+            new JoinedServer(),
             new FernRemember(),
             new EightBall(),
             new GetTimeZones(),
@@ -69,6 +71,7 @@ namespace Asparagus_Fern
             _client.Log += Log;
             _client.MessageReceived += Message;
             _client.MessageReceived += AsyncMessage;
+            _client.UserJoined += JoinedServer;
 
             _restClient = _client.Rest;
 
@@ -88,6 +91,7 @@ namespace Asparagus_Fern
             {
                 feature.client = _client;
                 feature.restClient = _restClient;
+                joinedList.Add(feature.Joined);
                 messageRecievedList.Add(feature.Message);
                 messageAsyncRecievedList.Add(feature.AsyncMessage);
                 timed5MinFunctionList.Add(feature.FiveMinuteTask);
@@ -124,6 +128,14 @@ namespace Asparagus_Fern
         Task Log(LogMessage msg)
         {
             return Task.CompletedTask;
+        }
+
+        async Task JoinedServer(SocketGuildUser joined)
+        {
+            foreach (var joinedFunctions in joinedList)
+            {
+                await joinedFunctions(joined);
+            }
         }
 
         Task Message(SocketMessage message)
