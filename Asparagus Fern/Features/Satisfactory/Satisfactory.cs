@@ -20,7 +20,7 @@ namespace Asparagus_Fern.Features.Satisfactory
 {
     class Satisfactory : DiscordIO
     {
-        //public static string WorldPath = "~/.config/Epic/FactoryGame/Saved/SaveGames/server/";
+        public static string WorldPath = "~/.config/Epic/FactoryGame/Saved/SaveGames/server/";
 
         public Satisfactory()
         {
