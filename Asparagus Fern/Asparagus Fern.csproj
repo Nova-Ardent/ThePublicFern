@@ -10,13 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Features\NewFolder1\**" />
-    <Compile Remove="Features\NewFolder\**" />
+    <Compile Remove="Features\Phasmo\MainIcon\**" />
     <Compile Remove="NewFolder\**" />
     <EmbeddedResource Remove="Features\NewFolder1\**" />
-    <EmbeddedResource Remove="Features\NewFolder\**" />
+    <EmbeddedResource Remove="Features\Phasmo\MainIcon\**" />
     <EmbeddedResource Remove="NewFolder\**" />
     <None Remove="Features\NewFolder1\**" />
-    <None Remove="Features\NewFolder\**" />
+    <None Remove="Features\Phasmo\MainIcon\**" />
     <None Remove="NewFolder\**" />
   </ItemGroup>
 

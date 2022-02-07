@@ -26,6 +26,7 @@ namespace Asparagus_Fern.Tools
         public virtual void FiveMinuteTask(object source, ElapsedEventArgs e) { return; }
         public virtual void MinuteTask(object source, ElapsedEventArgs e) { return; }
         public virtual void ThirtySecondTask(object source, ElapsedEventArgs e) { return; }
+        public virtual void TenSecondTask(object source, ElapsedEventArgs e) { return; }
         public virtual async Task OnRemoveReaction(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction) { await Task.CompletedTask; }
         public virtual async Task OnReaction(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction) { await Task.CompletedTask; }
         public virtual string HelpMessage(bool isAdmin) { return ""; }

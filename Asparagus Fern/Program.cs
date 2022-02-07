@@ -8,6 +8,8 @@ using Asparagus_Fern.Features.RockPaperScissors;
 using Asparagus_Fern.Features.EightBall;
 using Asparagus_Fern.Features.ReactionRoles;
 using Asparagus_Fern.Features.MinorApplications;
+using Asparagus_Fern.Features.Phasmo;
+using Asparagus_Fern.Features.Satisfactory;
 using System.Reflection;
 using System.Linq;
 using System.Collections;
@@ -48,18 +50,23 @@ namespace Asparagus_Fern
         List<Action<object, ElapsedEventArgs>> timed5MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed1MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed30secFunctionList = new List<Action<object, ElapsedEventArgs>>();
+        List<Action<object, ElapsedEventArgs>> timed10secFunctionList = new List<Action<object, ElapsedEventArgs>>();
 
         DiscordIO[] features = new DiscordIO[] {
-            new JoinedServer(),
-            new FernRemember(),
+            new PhasmoBot(), 
+            new SuperSpoiler(),
+            //new Corn(),
+            new Satisfactory(),
+            //new JoinedServer(),
+            //new FernRemember(),
             new EightBall(),
             new GetTimeZones(),
             new MessageRecord(),
-            new PercentResponse(),
+            //new PercentResponse(),
             new ReactionRoles(),
             //new RemindMe(),
             new RockPaperScissors(),
-            new Woosh()
+            //new Woosh()
         };
 
         public static void Main(string[] args)
@@ -87,6 +94,10 @@ namespace Asparagus_Fern
             a30sTimer.Elapsed += new ElapsedEventHandler(TimedFunction30Seconds);
             a30sTimer.Start();
 
+            var a10sTimer = new System.Timers.Timer(10 * 1000);
+            a10sTimer.Elapsed += new ElapsedEventHandler(TimedFunction10Seconds);
+            a10sTimer.Start();
+
             foreach (var feature in features)
             {
                 feature.client = _client;
@@ -97,6 +108,7 @@ namespace Asparagus_Fern
                 timed5MinFunctionList.Add(feature.FiveMinuteTask);
                 timed1MinFunctionList.Add(feature.MinuteTask);
                 timed30secFunctionList.Add(feature.ThirtySecondTask);
+                timed10secFunctionList.Add(feature.TenSecondTask);
                 _client.Connected += feature.Connected;
                 _client.Connected += feature.SetRest;
                 _client.LoggedOut += feature.Logout;
@@ -218,6 +230,14 @@ namespace Asparagus_Fern
         void TimedFunction30Seconds(object source, ElapsedEventArgs e)
         {
             foreach (var funcs in timed30secFunctionList)
+            {
+                funcs(source, e);
+            }
+        }
+
+        void TimedFunction10Seconds(object source, ElapsedEventArgs e)
+        {
+            foreach (var funcs in timed10secFunctionList)
             {
                 funcs(source, e);
             }

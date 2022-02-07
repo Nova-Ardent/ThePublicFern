@@ -40,7 +40,8 @@ namespace Asparagus_Fern.Tools
             var filePath = Path.Combine(path);
             FileStream file = File.Create(filePath);
 
-            var jsonData = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(data));
+            
+            var jsonData = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(data, new JsonSerializerOptions() { WriteIndented = true }));
             file.Write(jsonData, 0, jsonData.Length);
             file.Close();
 
