@@ -11,7 +11,7 @@ namespace Asparagus_Fern.Tools
 {
     public static class SaveAndLoad
     {
-        const bool verbosPrint = true;
+        const bool verbosPrint = false;
 
         public static bool FileExists(params string[] path)
         {
@@ -60,6 +60,7 @@ namespace Asparagus_Fern.Tools
             {
                 string text = streamReader.ReadToEnd();
                 data = JsonSerializer.Deserialize<T>(text);
+                streamReader.Close();
             }
 
             if (verbosPrint)

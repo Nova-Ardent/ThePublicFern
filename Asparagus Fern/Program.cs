@@ -4,30 +4,12 @@ using Discord.WebSocket;
 using Discord;
 using System.IO;
 using Asparagus_Fern.Tools;
-using Asparagus_Fern.Features.RockPaperScissors;
-using Asparagus_Fern.Features.EightBall;
-using Asparagus_Fern.Features.ReactionRoles;
-using Asparagus_Fern.Features.MinorApplications;
-using Asparagus_Fern.Features.Phasmo;
-using Asparagus_Fern.Features.Satisfactory;
+using Asparagus_Fern.Common;
 using System.Reflection;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Timers;
-
-public partial class Responses
-{
-    public static string FernHelp = "fern help";
-
-    public static IEnumerable<string> GetAllResponses()
-    {
-        return typeof(Responses)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(string))
-            .Select(f => (string)f.GetValue(null));
-    }
-}
 
 namespace Asparagus_Fern
 {
@@ -36,7 +18,7 @@ namespace Asparagus_Fern
 #if _WINDOWS
         private const string TOKEN_PATH = "C:\\Token\\AsFern.txt";
 #else
-        private const string TOKEN_PATH = "/Users/jordanszwed/Documents/AsFern.txt";
+        private const string TOKEN_PATH = ../token/token.txt";
 #endif
         public static string DataPath = "Data";
 
@@ -46,34 +28,30 @@ namespace Asparagus_Fern
 
         List<Func<SocketGuildUser, Task>> joinedList = new List<Func<SocketGuildUser, Task>>();
         List<Func<SocketMessage, string, bool, Task>> messageRecievedList = new List<Func<SocketMessage, string, bool, Task>>();
+        List<Func<Enum, SocketMessage, string, bool, Task>> commandRecievedList = new List<Func<Enum, SocketMessage, string, bool, Task>>();
         List<Func<SocketMessage, string, bool, Task>> messageAsyncRecievedList = new List<Func<SocketMessage, string, bool, Task>>();
+        List<Func<Enum, SocketMessage, string, bool, Task>> commandAsyncRecievedList = new List<Func<Enum, SocketMessage, string, bool, Task>>();
         List<Action<object, ElapsedEventArgs>> timed5MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed1MinFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed30secFunctionList = new List<Action<object, ElapsedEventArgs>>();
         List<Action<object, ElapsedEventArgs>> timed10secFunctionList = new List<Action<object, ElapsedEventArgs>>();
 
-        DiscordIO[] features = new DiscordIO[] {
-            new PhasmoBot(), 
-            new SuperSpoiler(),
-            //new Corn(),
-            new Satisfactory(),
-            //new JoinedServer(),
-            //new FernRemember(),
-            new EightBall(),
-            new GetTimeZones(),
-            new MessageRecord(),
-            //new PercentResponse(),
-            new ReactionRoles(),
-            //new RemindMe(),
-            new RockPaperScissors(),
-            //new Woosh()
-        };
+        FernHelp fernHelp = new FernHelp();
+        DiscordIO[] features;
 
         public static void Main(string[] args)
             => new Program().MainAsync().GetAwaiter().GetResult();
 
         public async Task MainAsync()
         {
+            
+            features = new DiscordIO[] {
+                fernHelp,
+                new Acronym(),
+                new Calories150(),
+            };
+            fernHelp.AddFeatures(features);
+
             _client = new DiscordSocketClient();
             _client.Log += Log;
             _client.MessageReceived += Message;
@@ -104,7 +82,9 @@ namespace Asparagus_Fern
                 feature.restClient = _restClient;
                 joinedList.Add(feature.Joined);
                 messageRecievedList.Add(feature.Message);
+                commandRecievedList.Add(feature.Command);
                 messageAsyncRecievedList.Add(feature.AsyncMessage);
+                commandAsyncRecievedList.Add(feature.AsyncCommand);
                 timed5MinFunctionList.Add(feature.FiveMinuteTask);
                 timed1MinFunctionList.Add(feature.MinuteTask);
                 timed30secFunctionList.Add(feature.ThirtySecondTask);
@@ -117,14 +97,7 @@ namespace Asparagus_Fern
             }
 
             TextWriter errorWriter = Console.Error;
-            var res = Responses.GetAllResponses().GroupBy(v => v);
-            foreach (var responses in res)
-            {
-                if (responses.Count() > 1)
-                {
-                    errorWriter.WriteLine($"WARNING YOU HAVE A DUPLICATE RESPONSE: \"{responses.Key}\" : {responses.Count()}");
-                }
-            }
+            Responses.CompileResponses();
 
             using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
             {
@@ -162,32 +135,37 @@ namespace Asparagus_Fern
             }
 
             string content = message.Content.ToLower();
+            Enum command = Responses.SearchForCommand(content);
 
-            if (content.Equals(Responses.FernHelp))
+            if (command != null)
             {
-                string response = "";
-                foreach (var feature in features)
+                int length = DiscordIO.EnumToCommand(command).Length;
+                int contentLength = content.Length - length;
+                string contentStripped = content.Substring(DiscordIO.EnumToCommand(command).Length, contentLength).Trim();
+
+                foreach (var funcs in commandRecievedList)
                 {
-                    string helpMessage = feature.HelpMessage(isAdmin);
-                    if (!string.IsNullOrEmpty(helpMessage))
+                    try
                     {
-                        response += $"{helpMessage}\n\n";
+                        funcs(command, message, contentStripped, isAdmin);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
                     }
                 }
-
-                response += "**tip: phrases such as `<this>` are referencing user input for the command**";
-                var embed = new EmbedBuilder()
-                {
-                    Title = $"Help!",
-                    Description = response,
-                    Color = Color.DarkRed
-                }.Build();
-                message.Channel.SendMessageAsync(embed: embed);
             }
 
             foreach (var funcs in messageRecievedList)
             {
-                funcs(message, content, isAdmin);
+                try
+                {
+                    funcs(message, content, isAdmin);
+                }
+                    catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             return Task.CompletedTask;
         }
@@ -204,10 +182,37 @@ namespace Asparagus_Fern
             }
 
             string content = message.Content.ToLower();
+            Enum command = Responses.SearchForCommand(content);
+
+            if (command != null)
+            {
+                int length = DiscordIO.EnumToCommand(command).Length;
+                int contentLength = content.Length - length;
+                string contentStripped = content.Substring(DiscordIO.EnumToCommand(command).Length, contentLength).Trim();
+
+                foreach (var funcs in commandAsyncRecievedList)
+                {
+                    try
+                    {
+                        await funcs(command, message, contentStripped, isAdmin);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            }
 
             foreach (var funcs in messageAsyncRecievedList)
             {
-                await funcs(message, content, isAdmin);
+                try
+                {
+                    await funcs(message, content, isAdmin);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 
