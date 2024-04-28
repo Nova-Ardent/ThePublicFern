@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Linq;
 using System;
-using System.Text.Json;
+//using System.Text.Json;
 
 namespace Asparagus_Fern.Tools
 {
@@ -32,6 +32,7 @@ namespace Asparagus_Fern.Tools
             File.Delete(filePath);
         }
 
+        /*
         public static void SaveFile<T>(T data, params string[] path)
         {
             CheckPathAndCreate(path.Take(path.Length - 1).ToArray());
@@ -50,7 +51,9 @@ namespace Asparagus_Fern.Tools
                 Console.WriteLine($"wrote to: {filePath}");
             }
         }
+        */
 
+        /*
         public static void LoadFile<T>(out T data, params string[] path)
         {
             CheckPathAndCreate(path.Take(path.Length - 1).ToArray());
@@ -68,6 +71,7 @@ namespace Asparagus_Fern.Tools
                 Console.WriteLine($"read from: {filePath}");
             }
         }
+        */
 
         public static void CheckPathAndCreate(params string[] path)
         {

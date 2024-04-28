@@ -30,7 +30,7 @@ public partial class Responses
             public Dictionary<char, Node<K>> nodes = new Dictionary<char, Node<K>>();
 
             public K value;
-            bool hasValue => value != null;
+            public bool HasValue => value != null;
 
             public Node()
             {
@@ -78,6 +78,10 @@ public partial class Responses
                 if (currentNode.nodes.ContainsKey(c))
                 {
                     currentNode = currentNode.nodes[c];
+                }
+                else if (currentNode.HasValue)
+                {
+                    return currentNode.value;
                 }
                 else
                 {
@@ -147,7 +151,9 @@ public partial class Responses
             foreach (var enumVal in Utilities.GetEnums(enumType))
             {
                 var key = enumVal.ToString();
+                string command = regex.Replace(key, " $1").ToLower();
                 responseSearchTree.AddValue(regex.Replace(key, " $1").ToLower(), enumVal);
+                responseSearchTree.AddValue(command + ' ', enumVal);
             }
         }
     }

@@ -5,11 +5,14 @@ using Discord;
 using System.IO;
 using Asparagus_Fern.Tools;
 using Asparagus_Fern.Common;
+using Asparagus_Fern.Dice_Roller;
 using System.Reflection;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Timers;
+using Asparagus_Fern.GPTFern;
+using Asparagus_Fern.Dice_Roller.Initiative;
 
 namespace Asparagus_Fern
 {
@@ -23,6 +26,7 @@ namespace Asparagus_Fern
         public static string DataPath = "Data";
 
         private string token = null;
+        private string gpttoken = null;
         private DiscordSocketClient _client;
         private DiscordSocketRestClient _restClient;
 
@@ -44,13 +48,27 @@ namespace Asparagus_Fern
 
         public async Task MainAsync()
         {
-            
+            using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
+            {
+                StreamReader sr = new StreamReader(fs);
+                token = sr.ReadLine();
+                gpttoken = sr.ReadLine();
+            }
+
+            GPTFernIO gpt = new GPTFernIO(gpttoken);
+
             features = new DiscordIO[] {
                 fernHelp,
                 new Acronym(),
-                new Calories150(),
+                new DiceRoller(),
+                new InitiativeRoller(),
+                gpt,
             };
             fernHelp.AddFeatures(features);
+            foreach (var feature in features)
+            {
+                await feature.Init();
+            }
 
             _client = new DiscordSocketClient();
             _client.Log += Log;
@@ -99,14 +117,11 @@ namespace Asparagus_Fern
             TextWriter errorWriter = Console.Error;
             Responses.CompileResponses();
 
-            using (FileStream fs = File.Open(TOKEN_PATH, FileMode.Open, FileAccess.Read))
-            {
-                StreamReader sr = new StreamReader(fs);
-                token = sr.ReadLine();
-            }
-
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
+
+            gpt.SetBotID(_client.Rest.CurrentUser.Id);
+            
             await Task.Delay(-1);
         }
 

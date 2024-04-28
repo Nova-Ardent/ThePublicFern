@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Discord;
@@ -6,6 +8,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Timers;
 using System.Text.RegularExpressions;
+using Discord.Rest;
 
 namespace Asparagus_Fern.Common
 {
@@ -37,6 +40,8 @@ namespace Asparagus_Fern.Common
             restClient = client.Rest;
             await Task.CompletedTask;
         }
+
+        public virtual async Task Init() { await Task.CompletedTask; }
         public virtual async Task Connected() { await Task.CompletedTask; }
         public virtual Task Message(SocketMessage message, string lowercase, bool isAdmin) { return Task.CompletedTask; }
         public virtual Task Command(Enum command, SocketMessage message, string messageStripped, bool admin) { return Task.CompletedTask; }
@@ -57,6 +62,22 @@ namespace Asparagus_Fern.Common
         public static string EnumToCommand(Enum val) 
         {
             return enumToCommand.Replace(val.ToString(), " $1").ToLower();
+        }
+
+        protected async Task<RestUserMessage> DisplayMessage(SocketMessage message, string name, string body, string thumbnail = "")
+        {
+            return await DisplayMessage(message.Channel, name, body, thumbnail);
+        }
+
+        protected async Task<RestUserMessage> DisplayMessage(ISocketMessageChannel Channel, string name, string body, string thumbnail = "")
+        {
+            return await Channel.SendMessageAsync(embed: new EmbedBuilder()
+            {
+                Title = name,
+                Description = body,
+                Color = FeatureColor(),
+                ThumbnailUrl = thumbnail
+            }.Build());
         }
     }
 }

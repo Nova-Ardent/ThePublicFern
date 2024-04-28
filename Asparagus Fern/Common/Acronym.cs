@@ -26,7 +26,6 @@ namespace Asparagus_Fern.Common
 
         Responses.LookupTree<Enum> acryonymLookup = new Responses.LookupTree<Enum>();
 
-
         public const string PathName = "Dictionary";
         public const string FileNameNoSwears = "worlds_alphaNS.txt";
 
